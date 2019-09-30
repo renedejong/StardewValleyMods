@@ -1,9 +1,5 @@
-﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using StardewModdingAPI;
-using StardewModdingAPI.Events;
+﻿using StardewModdingAPI;
 using StardewValley;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -11,50 +7,61 @@ namespace StardewValleyMods.LoveBubbles
 {
     public class LoveBubblesMod : Mod
     {
-        private bool HideWhenMilkable => Helper.ModRegistry.IsLoaded("BetterRanching");
-
-        private TextureRegion Bubble;
-        private TextureRegion Heart;
-
-        private Config Config;
+        private static readonly string[] harvestTools = new [] { "Milk Pail", "Shears" };
 
         public override void Entry(IModHelper helper)
         {
-            Config = helper.ReadConfig<Config>();
-            
-            Bubble = new TextureRegion(Game1.mouseCursors, new Rectangle(141, 465, 20, 24), zoom: true);
-            Heart = new TextureRegion(Game1.mouseCursors, new Rectangle(226, 1811, 13, 12), zoom: true);
-            
-            GraphicsEvents.OnPreRenderHudEvent += (sender, e) => OnPreRenderHud();
-        }
-
-        private void OnPreRenderHud()
-        {
-            if (Game1.hasLoadedGame && Game1.currentLocation.IsFarm)
-                DrawAllBubbles(HideWhenMilkable);
-        }
-
-        private void DrawAllBubbles(bool hideWhenMilkable)
-        {
-            foreach (FarmAnimal animal in GetNearbyAnimals())
+            if (HasSupercedingModLoaded())
             {
-                var suppress = HasProduct(animal) && hideWhenMilkable;
+                // Abort loading the mod if another mod is present that adds the same functionality
+                return;
+            }
+            
+            Helper.Events.Display.RenderingHud += (sender, e) => DrawAllBubbles();
+        }
 
-                if (!animal.wasPet.Value && !suppress)
-                    DrawBubble(Game1.spriteBatch, animal);
+        /// <summary>
+        /// Determine if the player has any mods loaded that offer the same functionality as this mod
+        /// </summary>
+        /// <returns>true if there is a superceding mod, otherwise false</returns>
+        private bool HasSupercedingModLoaded()
+        {
+            return Helper.ModRegistry.IsLoaded("BetterRanching");
+        }
+
+        /// <summary>
+        /// Determine which animals need some love and draw a heart bubble above them
+        /// </summary>
+        private void DrawAllBubbles()
+        {
+            if (!Game1.hasLoadedGame || !Game1.currentLocation.IsFarm)
+            {
+                return;
+            }
+
+            var pettableAnimals = GetNearbyAnimals().Where(a => !a.wasPet.Value && !HasProduct(a));
+
+            foreach (var animal in pettableAnimals)
+            {
+                Renderer.DrawBubble(animal);
             }
         }
 
-        private bool HasProduct(FarmAnimal animal)
+        /// <summary>
+        /// Determine whether an animal has product that can be collected by the player
+        /// </summary>
+        /// <param name="animal">the animal</param>
+        /// <returns>true if the animal has collectible product, otherwise false</returns>
+        private static bool HasProduct(FarmAnimal animal)
         {
-            
-            if (animal.toolUsedForHarvest.Value == "Milk Pail" || animal.toolUsedForHarvest.Value == "Shears")
-                return animal.currentProduce.Value > 0;
-
-            return false;
+            return harvestTools.Contains(animal.toolUsedForHarvest.Value) && animal.currentProduce.Value > 0;
         }
 
-        private IEnumerable<FarmAnimal> GetNearbyAnimals()
+        /// <summary>
+        /// Get a collection of nearby animals
+        /// </summary>
+        /// <returns>a collection of animals</returns>
+        private static IEnumerable<FarmAnimal> GetNearbyAnimals()
         {
             switch (Game1.currentLocation)
             {
@@ -67,31 +74,6 @@ namespace StardewValleyMods.LoveBubbles
                 default:
                     return Enumerable.Empty<FarmAnimal>();
             }
-        }
-
-        private void DrawBubble(SpriteBatch spriteBatch, FarmAnimal animal)
-        {
-            var bubblePosition = new Vector2(
-                animal.Position.X + animal.Sprite.getWidth() / 2,
-                animal.Position.Y - (Game1.tileSize * 4) / 3 + GetBubbleOffset());
-
-            spriteBatch.Draw(Bubble,
-                Game1.GlobalToLocal(Game1.viewport, bubblePosition),
-                (Color)(Color.White * 0.75f));
-
-            var heartPosition = bubblePosition
-                + new Vector2(Bubble.Width / 2, Bubble.Height / 2)
-                - new Vector2(Heart.Width / 2, Heart.Height / 2)
-                - new Vector2(0, 4);
-
-            spriteBatch.Draw(Heart,
-                Game1.GlobalToLocal(Game1.viewport, heartPosition),
-                new Color(255, 128, 128, 192));
-        }
-
-        private float GetBubbleOffset()
-        {
-            return (float)(4.0 * Math.Round(Math.Sin(DateTime.Now.TimeOfDay.TotalMilliseconds / 250.0), 2));
         }
     }
 }

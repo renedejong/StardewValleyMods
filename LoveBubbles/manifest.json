@@ -1,10 +1,10 @@
 ﻿{
-  "Name": "Love Bubbles",
-  "Author": "Don Collins",
-  "Version": "1.2.0",
-  "Description": "Show bubbles above animals that need petting.",
-  "UniqueID": "LoveBubbles",
-  "PerSaveConfigs": false,
-  "MinimumApiVersion": "2.6-beta",
-  "EntryDll": "LoveBubbles.dll"
+    "Name": "Love Bubbles",
+    "Author": "Don Collins",
+    "Version": "1.2.1-unofficial.1-Ingwaz",
+    "Description": "Show bubbles above animals that need petting.",
+    "UniqueID": "LoveBubbles",
+    "MinimumApiVersion": "2.11.0",
+    "EntryDll": "LoveBubbles.dll",
+    "UpdateKeys": [ "GitHub:TODO/TODO" ]
 }
