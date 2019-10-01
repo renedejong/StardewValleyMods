@@ -1,6 +1,7 @@
 This is an unofficial update for the LoveBubbles mod to get it working with [SMAPI](https://github.com/Pathoschild/SMAPI) 3.0
 
-Original mod by Don Collins: [Github](https://github.com/doncollins/StardewValleyMods) [NexusMods](https://www.nexusmods.com/stardewvalley/mods/1318)
+Original mod by Don Collins: [Github](https://github.com/doncollins/StardewValleyMods) / [NexusMods](https://www.nexusmods.com/stardewvalley/mods/1318)
+
 Based on a pull request by aEnigmatic: [Github](https://github.com/doncollins/StardewValleyMods/pull/2)
 
 
